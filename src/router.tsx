@@ -12,7 +12,7 @@ import { env } from "./env";
 
 // Create a new router instance
 export const getRouter = () => {
-  const convexQueryClient = new ConvexQueryClient(env.VITE_CONVEX_URL);
+  const convexQueryClient = new ConvexQueryClient(env.VITE_CONVEX_SITE_URL);
 
   const queryClient: QueryClient = new QueryClient({
     defaultOptions: {
