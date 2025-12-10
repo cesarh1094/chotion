@@ -3,21 +3,18 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
-  useRouteContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getRequest } from "@tanstack/react-start/server";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import {
   fetchSession,
   getCookieName,
 } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { ConvexReactClient } from "convex/react";
-import { authClient } from "../lib/auth-client";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -80,19 +77,12 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
-  const context = useRouteContext({ from: Route.id });
-
   return (
     <RootDocument>
-      <ConvexBetterAuthProvider
-        client={context.convexClient}
-        authClient={authClient}
-      >
-        <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
-          <Header />
-          <Outlet />
-        </ThemeProvider>
-      </ConvexBetterAuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
+        <Header />
+        <Outlet />
+      </ThemeProvider>
     </RootDocument>
   );
 }

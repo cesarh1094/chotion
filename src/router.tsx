@@ -9,6 +9,8 @@ import * as Sentry from "@sentry/tanstackstart-react";
 import { routeTree } from "./routeTree.gen";
 import { QueryClient } from "@tanstack/react-query";
 import { env } from "./env";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { authClient } from "./lib/auth-client";
 
 // Create a new router instance
 export const getRouter = () => {
@@ -37,7 +39,12 @@ export const getRouter = () => {
       },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>
-          {children}
+          <ConvexBetterAuthProvider
+            client={convexQueryClient.convexClient}
+            authClient={authClient}
+          >
+            {children}
+          </ConvexBetterAuthProvider>
         </ConvexProvider>
       ),
     }),
