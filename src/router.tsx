@@ -30,7 +30,11 @@ export const getRouter = () => {
       routeTree,
       scrollRestoration: true,
       defaultPreloadStaleTime: 0,
-      context: { queryClient },
+      context: {
+        queryClient,
+        convexClient: convexQueryClient.convexClient,
+        convexQueryClient,
+      },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>
           {children}
