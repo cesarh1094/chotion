@@ -53,13 +53,13 @@ export const Route = createRootRouteWithContext<{
       },
     ],
     links: [
+      { rel: "preload", as: "style", href: appCss },
       {
         rel: "stylesheet",
         href: appCss,
       },
     ],
   }),
-
   beforeLoad: async (ctx) => {
     // all queries, mutations and action made with TanStack Query will be
     // authenticated by an identity token.
