@@ -2,9 +2,10 @@ import { createClient } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { components } from "./_generated/api";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import type { GenericCtx } from "@convex-dev/better-auth";
 import type { DataModel } from "./_generated/dataModel";
+import { ConvexError, v } from "convex/values";
 
 const siteUrl = process.env.SITE_URL!;
 
@@ -49,5 +50,32 @@ export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
     return authComponent.getAuthUser(ctx);
+  },
+});
+
+export const regsiterUser = mutation({
+  args: {
+    name: v.string(),
+    email: v.string(),
+    password: v.string(),
+    confirmPassword: v.string(),
+  },
+  handler: async (ctx, { name, email, password, confirmPassword }) => {
+    if (password !== confirmPassword) {
+      throw new ConvexError({
+        message: "Passwords should match",
+        code: 404,
+      });
+    }
+
+    const { auth } = await authComponent.getAuth(createAuth, ctx);
+
+    return await auth.api.signUpEmail({
+      body: {
+        name,
+        email,
+        password,
+      },
+    });
   },
 });
