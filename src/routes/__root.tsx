@@ -26,6 +26,11 @@ import appCss from "../styles.css?url";
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { createAuth } = await import("../../convex/auth");
   const { session } = await fetchSession(getRequest());
+
+  if (!session) {
+    return { userId: null, token: null };
+  }
+
   const sessionCookieName = getCookieName(createAuth);
   const token = getCookie(sessionCookieName);
   return {
