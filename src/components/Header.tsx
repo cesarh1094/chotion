@@ -7,6 +7,7 @@ import {
   ClipboardType,
   Globe,
   Home,
+  LogOut,
   Menu,
   Network,
   SquareFunction,
@@ -14,12 +15,19 @@ import {
   X,
 } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
+import { authClient } from "@/lib/auth-client";
+import { Button } from "./ui/button";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [groupedExpanded, setGroupedExpanded] = useState<
     Record<string, boolean>
   >({});
+  const { data: session } = authClient.useSession();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+  };
 
   return (
     <>
@@ -40,7 +48,18 @@ export default function Header() {
             />
           </Link>
         </h1>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {session && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-white hover:bg-gray-700"
+            >
+              <LogOut size={18} className="mr-1" />
+              Log out
+            </Button>
+          )}
           <ClientOnly>
             <ModeToggle />
           </ClientOnly>

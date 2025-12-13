@@ -62,7 +62,7 @@ export const regsiterUser = mutation({
     if (password !== confirmPassword) {
       throw new ConvexError({
         message: "Passwords should match",
-        code: 404,
+        code: 400,
       });
     }
 
