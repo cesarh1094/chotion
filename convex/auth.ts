@@ -23,8 +23,6 @@ export const createAuth = (
     logger: {
       disabled: optionsOnly,
     },
-    // set the "route" for which we'll be making HTTP requests on our convex deployment
-    basePath: "/api/auth",
     baseURL: siteUrl,
     database: authComponent.adapter(ctx),
     // Configure simple, non-verified email/password to get started

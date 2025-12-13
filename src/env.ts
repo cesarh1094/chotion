@@ -12,6 +12,7 @@ export const env = createEnv({
 
   client: {
     VITE_APP_TITLE: v.optional(v.pipe(v.string(), v.minLength(1))),
+    VITE_CONVEX_URL: v.pipe(v.string(), v.minLength(1)),
     VITE_CONVEX_SITE_URL: v.pipe(v.string(), v.minLength(1)),
     VITE_SENTRY_DSN: v.pipe(v.string(), v.minLength(1)),
   },

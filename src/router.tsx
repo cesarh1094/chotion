@@ -1,20 +1,26 @@
 import { createRouter } from "@tanstack/react-router";
-import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
-import { ConvexProvider } from "convex/react";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 import * as Sentry from "@sentry/tanstackstart-react";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { QueryClient } from "@tanstack/react-query";
+import { notifyManager, QueryClient } from "@tanstack/react-query";
 import { env } from "./env";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { authClient } from "./lib/auth-client";
 
 // Create a new router instance
 export const getRouter = () => {
-  const convexQueryClient = new ConvexQueryClient(env.VITE_CONVEX_SITE_URL);
+  if (typeof document !== "undefined") {
+    notifyManager.setScheduler(window.requestAnimationFrame);
+  }
+
+  const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
+    expectAuth: true,
+  });
+
+  const convexQueryClient = new ConvexQueryClient(convex);
 
   const queryClient: QueryClient = new QueryClient({
     defaultOptions: {
@@ -27,29 +33,22 @@ export const getRouter = () => {
 
   convexQueryClient.connect(queryClient);
 
-  const router = routerWithQueryClient(
-    createRouter({
-      routeTree,
-      scrollRestoration: true,
-      defaultPreloadStaleTime: 0,
-      context: {
-        queryClient,
-        convexClient: convexQueryClient.convexClient,
-        convexQueryClient,
-      },
-      Wrap: ({ children }) => (
-        <ConvexProvider client={convexQueryClient.convexClient}>
-          <ConvexBetterAuthProvider
-            client={convexQueryClient.convexClient}
-            authClient={authClient}
-          >
-            {children}
-          </ConvexBetterAuthProvider>
-        </ConvexProvider>
-      ),
-    }),
+  const router = createRouter({
+    routeTree,
+    defaultPreload: "intent",
+    context: { queryClient, convexQueryClient },
+    Wrap: ({ children }) => (
+      <ConvexProvider client={convexQueryClient.convexClient}>
+        {children}
+      </ConvexProvider>
+    ),
+    scrollRestoration: true,
+  });
+
+  setupRouterSsrQueryIntegration({
+    router,
     queryClient,
-  );
+  });
 
   if (!router.isServer) {
     Sentry.init({
