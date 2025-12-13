@@ -3,10 +3,8 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
+  useRouteContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getRequest } from "@tanstack/react-start/server";
 import {
@@ -14,13 +12,14 @@ import {
   getCookieName,
 } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
-import type { ConvexReactClient } from "convex/react";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 
 import Header from "../components/Header";
 
 import appCss from "../styles.css?url";
+import { authClient } from "@/lib/auth-client";
 
 // Get auth information for SSR using available cookies
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
@@ -41,7 +40,6 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
 }>()({
   head: () => ({
@@ -54,7 +52,7 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Chotion",
       },
     ],
     links: [
@@ -82,13 +80,19 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
+  const context = useRouteContext({ from: Route.id });
   return (
+    <ConvexBetterAuthProvider
+      client={context.convexQueryClient.convexClient}
+      authClient={authClient}
+    >
     <RootDocument>
       <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
         <Header />
         <Outlet />
       </ThemeProvider>
     </RootDocument>
+    </ConvexBetterAuthProvider>
   );
 }
 
@@ -100,18 +104,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         {children}
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            { name: "Tanstack Query", render: <ReactQueryDevtoolsPanel /> },
-          ]}
-        />
         <Scripts />
       </body>
     </html>
