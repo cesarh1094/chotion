@@ -1,12 +1,49 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { createServerFn } from "@tanstack/react-start";
+import { getCookie, getRequest } from "@tanstack/react-start/server";
+import {
+  fetchSession,
+  getCookieName,
+} from "@convex-dev/better-auth/react-start";
+import type { ConvexQueryClient } from "@convex-dev/react-query";
+import type { ConvexReactClient } from "convex/react";
+import type { QueryClient } from "@tanstack/react-query";
+import { ThemeProvider } from "@/components/theme-provider";
 
 import Header from "../components/Header";
 
 import appCss from "../styles.css?url";
 
-export const Route = createRootRoute({
+// Get auth information for SSR using available cookies
+const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
+  const { createAuth } = await import("../../convex/auth");
+  const { session } = await fetchSession(getRequest());
+
+  if (!session) {
+    return { userId: null, token: null };
+  }
+
+  const sessionCookieName = getCookieName(createAuth);
+  const token = getCookie(sessionCookieName);
+  return {
+    userId: session?.user.id,
+    token,
+  };
+});
+
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  convexClient: ConvexReactClient;
+  convexQueryClient: ConvexQueryClient;
+}>()({
   head: () => ({
     meta: [
       {
@@ -21,24 +58,47 @@ export const Route = createRootRoute({
       },
     ],
     links: [
+      { rel: "preload", as: "style", href: appCss },
       {
         rel: "stylesheet",
         href: appCss,
       },
     ],
   }),
+  beforeLoad: async (ctx) => {
+    // all queries, mutations and action made with TanStack Query will be
+    // authenticated by an identity token.
+    const { userId, token } = await fetchAuth();
 
-  shellComponent: RootDocument,
+    // During SSR only (the only time serverHttpClient exists),
+    // set the auth token to make HTTP queries with.
+    if (token) {
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
+    }
+
+    return { userId, token };
+  },
+  component: RootComponent,
 });
+
+function RootComponent() {
+  return (
+    <RootDocument>
+      <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
+        <Header />
+        <Outlet />
+      </ThemeProvider>
+    </RootDocument>
+  );
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
-        <Header />
+      <body suppressHydrationWarning>
         {children}
         <TanStackDevtools
           config={{
@@ -49,6 +109,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
+            { name: "Tanstack Query", render: <ReactQueryDevtoolsPanel /> },
           ]}
         />
         <Scripts />
