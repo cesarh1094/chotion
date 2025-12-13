@@ -12,6 +12,7 @@ import {
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { fetchMutation } from "@/lib/auth-server";
 import { api } from "../../../../convex/_generated/api";
+import { authClient } from "@/lib/auth-client";
 
 const nameValidator = v.pipe(
   v.string("Name must be a string"),
@@ -72,15 +73,15 @@ const registerUserServerFn = createServerFn({ method: "POST" })
   .handler(async (ctx) => {
     try {
       const validated = await serverValidate(ctx.data);
-      const registerUserResponse = await fetchMutation(api.auth.regsiterUser, {
+
+      // TODO: find a way to ensure auth token returned
+      const response = await fetchMutation(api.auth.regsiterUser, {
         ...validated,
       });
 
-      console.log(registerUserResponse);
-
       setResponseStatus(200);
 
-      return { success: true, data: null };
+      return { success: true, data: response.user };
     } catch (e) {
       console.log({ data: ctx.data });
 
@@ -90,19 +91,26 @@ const registerUserServerFn = createServerFn({ method: "POST" })
   });
 
 export function RegisterForm() {
-  const serverFn = useServerFn(registerUserServerFn);
-
   const form = useForm({
     ...formOpts,
     onSubmit: async ({ value, formApi }) => {
-      const formData = new FormData();
-      formData.append("name", value["name"]);
-      formData.append("email", value["email"]);
-      formData.append("password", value["password"]);
-      formData.append("confirmPassword", value["confirmPassword"]);
+      const { data, error } = await authClient.signUp.email(
+        {
+          name: value.name,
+          email: value.email,
+          password: value.password,
+          image: "",
+        },
+        {
+          onError: async (ctx) => {
+            console.log(ctx.request);
+            console.log(ctx.response);
+            console.log(ctx.error);
+          },
+        },
+      );
 
-      const response = await serverFn({ data: formData });
-
+      // Reset form input fields
       formApi.reset();
     },
   });

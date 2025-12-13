@@ -16,9 +16,8 @@ export const getRouter = () => {
     notifyManager.setScheduler(window.requestAnimationFrame);
   }
 
-  const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
-    expectAuth: true,
-  });
+  // Allow unauthenticated connections for public documents
+  const convex = new ConvexReactClient(env.VITE_CONVEX_URL);
 
   const convexQueryClient = new ConvexQueryClient(convex);
 
