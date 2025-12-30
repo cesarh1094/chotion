@@ -15,6 +15,7 @@ import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import * as Sentry from "@sentry/tanstackstart-react";
 
 import Header from "../components/Header";
 
@@ -23,19 +24,21 @@ import { authClient } from "@/lib/auth-client";
 
 // Get auth information for SSR using available cookies
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const { createAuth } = await import("../../convex/auth");
-  const { session } = await fetchSession(getRequest());
+  return Sentry.startSpan({ name: "fetchAuth" }, async () => {
+    const { createAuth } = await import("../../convex/auth");
+    const { session } = await fetchSession(getRequest());
 
-  if (!session) {
-    return { userId: null, token: null };
-  }
+    if (!session) {
+      return { userId: null, token: null };
+    }
 
-  const sessionCookieName = getCookieName(createAuth);
-  const token = getCookie(sessionCookieName);
-  return {
-    userId: session?.user.id,
-    token,
-  };
+    const sessionCookieName = getCookieName(createAuth);
+    const token = getCookie(sessionCookieName);
+    return {
+      userId: session?.user.id,
+      token,
+    };
+  });
 });
 
 export const Route = createRootRouteWithContext<{
@@ -86,12 +89,12 @@ function RootComponent() {
       client={context.convexQueryClient.convexClient}
       authClient={authClient}
     >
-    <RootDocument>
-      <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
-        <Header />
-        <Outlet />
-      </ThemeProvider>
-    </RootDocument>
+      <RootDocument>
+        <ThemeProvider defaultTheme="system" storageKey="chotion-theme">
+          <Header />
+          <Outlet />
+        </ThemeProvider>
+      </RootDocument>
     </ConvexBetterAuthProvider>
   );
 }

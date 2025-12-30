@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
@@ -12,8 +13,10 @@ export function Heading() {
         Chotion is the connected workspace where <br /> better, faster work
         happens
       </h3>
-      <Button>
-        Enter Chotion <ArrowRight />
+      <Button asChild>
+        <Link to="/docs">
+          Enter Chotion <ArrowRight />
+        </Link>
       </Button>
     </div>
   );

@@ -9,7 +9,11 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as collab from "../collab.js";
+import type * as docs from "../docs.js";
 import type * as http from "../http.js";
+import type * as members from "../members.js";
+import type * as presence from "../presence.js";
 
 import type {
   ApiFromModules,
@@ -19,7 +23,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  collab: typeof collab;
+  docs: typeof docs;
   http: typeof http;
+  members: typeof members;
+  presence: typeof presence;
 }>;
 
 /**

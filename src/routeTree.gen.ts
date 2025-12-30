@@ -13,6 +13,8 @@ import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as marketingIndexRouteImport } from './routes/(marketing)/index'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as docsDocsRouteRouteImport } from './routes/(docs)/docs/route'
+import { Route as docsDocsIndexRouteImport } from './routes/(docs)/docs/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoSentryTestingRouteImport } from './routes/demo/sentry.testing'
@@ -20,6 +22,7 @@ import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as docsDocsDocIdRouteImport } from './routes/(docs)/docs/$docId'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -43,6 +46,16 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => authRouteRoute,
+} as any)
+const docsDocsRouteRoute = docsDocsRouteRouteImport.update({
+  id: '/(docs)/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const docsDocsIndexRoute = docsDocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => docsDocsRouteRoute,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
@@ -79,6 +92,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const docsDocsDocIdRoute = docsDocsDocIdRouteImport.update({
+  id: '/$docId',
+  path: '/$docId',
+  getParentRoute: () => docsDocsRouteRoute,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -101,9 +119,11 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/docs': typeof docsDocsRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/': typeof marketingIndexRoute
+  '/docs/$docId': typeof docsDocsDocIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -111,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/docs/': typeof docsDocsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -120,6 +141,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/': typeof marketingIndexRoute
+  '/docs/$docId': typeof docsDocsDocIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -127,6 +149,7 @@ export interface FileRoutesByTo {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/docs': typeof docsDocsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -135,9 +158,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(auth)': typeof authRouteRouteWithChildren
+  '/(docs)/docs': typeof docsDocsRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(marketing)/': typeof marketingIndexRoute
+  '/(docs)/docs/$docId': typeof docsDocsDocIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/form/address': typeof DemoFormAddressRoute
@@ -145,6 +170,7 @@ export interface FileRoutesById {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/(docs)/docs/': typeof docsDocsIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -153,9 +179,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/docs'
     | '/login'
     | '/register'
     | '/'
+    | '/docs/$docId'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/form/address'
@@ -163,6 +191,7 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/docs/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -172,6 +201,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/'
+    | '/docs/$docId'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/form/address'
@@ -179,6 +209,7 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/docs'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -186,9 +217,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(auth)'
+    | '/(docs)/docs'
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(marketing)/'
+    | '/(docs)/docs/$docId'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/form/address'
@@ -196,6 +229,7 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/(docs)/docs/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -204,6 +238,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   authRouteRoute: typeof authRouteRouteWithChildren
+  docsDocsRouteRoute: typeof docsDocsRouteRouteWithChildren
   marketingIndexRoute: typeof marketingIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -247,6 +282,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
+    }
+    '/(docs)/docs': {
+      id: '/(docs)/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof docsDocsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(docs)/docs/': {
+      id: '/(docs)/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof docsDocsIndexRouteImport
+      parentRoute: typeof docsDocsRouteRoute
     }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
@@ -297,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(docs)/docs/$docId': {
+      id: '/(docs)/docs/$docId'
+      path: '/$docId'
+      fullPath: '/docs/$docId'
+      preLoaderRoute: typeof docsDocsDocIdRouteImport
+      parentRoute: typeof docsDocsRouteRoute
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -342,8 +398,23 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
+interface docsDocsRouteRouteChildren {
+  docsDocsDocIdRoute: typeof docsDocsDocIdRoute
+  docsDocsIndexRoute: typeof docsDocsIndexRoute
+}
+
+const docsDocsRouteRouteChildren: docsDocsRouteRouteChildren = {
+  docsDocsDocIdRoute: docsDocsDocIdRoute,
+  docsDocsIndexRoute: docsDocsIndexRoute,
+}
+
+const docsDocsRouteRouteWithChildren = docsDocsRouteRoute._addFileChildren(
+  docsDocsRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,
+  docsDocsRouteRoute: docsDocsRouteRouteWithChildren,
   marketingIndexRoute: marketingIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

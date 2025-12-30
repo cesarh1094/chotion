@@ -54,8 +54,8 @@ export function LoginForm() {
         }
         console.log(response);
 
-        // Successful login - redirect to home
-        navigate({ to: "/" });
+        // Successful login - redirect to docs
+        navigate({ to: "/docs" });
       } catch (error) {
         if (error instanceof Error) {
           setSubmitError(error.message);
